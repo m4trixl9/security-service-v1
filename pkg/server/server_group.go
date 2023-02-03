@@ -40,9 +40,11 @@ func (g *ServerGroup) Run(ctx context.Context) {
 		}(srv)
 	}
 
-	// 用 goroutine 来接收由ctx带过来的中断，然后做优雅关闭，各个服务的优雅关闭由统一封装的Server各自实现
+	// 用 goroutine 来接收由ctx带过来的中断，然后做优雅关闭（做各服务的收尾工作），各个服务的优雅关闭由统一封装的Server各自实现
 	go func() {
-		// 阻塞，直到收到信号
+		// 阻塞
+		// channel的规则：当写满时，不可以写；取空时，不可以取；发送数据将持续阻塞，直到数据被接收；接收将持续阻塞，直到发送方发送数据，每次只接收一个元素；
+		// 读一个read only的channel，除非该channel被关闭，否则读不出来任何东西；如果被关闭，则会读出相应类型的零值
 		<-ctx.Done()
 		for _, srv := range g.servers {
 			srv.Close(context.Background())

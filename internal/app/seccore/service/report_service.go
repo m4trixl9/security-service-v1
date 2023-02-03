@@ -23,4 +23,6 @@ func (r *ReportService) HandleReportV1(c *gin.Context) {
 	}
 
 	fmt.Println(string(body))
+
+	c.JSON(http.StatusOK, string(body))
 }
